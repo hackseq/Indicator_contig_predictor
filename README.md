@@ -1,2 +1,2 @@
-# 2016_project_10
+# Bacterial [metagenome] autocloser
 
