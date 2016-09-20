@@ -1,2 +1,2 @@
-# Bacterial [metagenome] autocloser
+# Bacterial [meta]genome autocloser
 
