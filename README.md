@@ -1,2 +1,2 @@
-# Bacterial [meta]genome autocloser
+# De novo metagenomic marker pipeline
 
