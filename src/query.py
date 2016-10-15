@@ -19,6 +19,7 @@ class Query:
         outputFiles = []
         #parse input
         sraFH = open(inputSRAs);
+        #TODO THREAD ME
         for files in sraFH:
             outputFiles.append(files + ".results.txt")
             runSingle(files, files + ".results.txt")
@@ -28,11 +29,7 @@ class Query:
     
     def runSingle(self, inputSRA, output):
         """Run a single sra ids"""
-        pass
-
-    def parseLine(self, line):
-        """parse blast output into format needed for classifier"""
-        pass
+        cmd = "sra-blastn -query " + self._reads + " -db " + inputSRA + " -outfmt 6 | python parseBlast.py > " + output
     
     def compileResults(self, outputList):
         """compile counts and results from multiple files"""
