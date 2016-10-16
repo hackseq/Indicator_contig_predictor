@@ -5,6 +5,8 @@
 @contact:    cjustin@bcgsc.ca
 '''
 
+import OptionParser
+
 class ReadLengths:
     
     def __init__(self):

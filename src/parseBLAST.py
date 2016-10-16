@@ -7,7 +7,7 @@
 
 class ParseBLAST:
     
-    def __init__(self, reads):
+    def __init__(self):
         """Constructor"""
         pass
     
