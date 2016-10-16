@@ -34,7 +34,7 @@ class Query:
     
     def _runSingle(self, inputSRA, output):
         """Run a single sra ids"""
-        cmd = "/usr/bin/time -v magicblast -paired -db " + self._reads + " -sra " + inputSRA + " > " + output
+        cmd = "time magicblast -paired -db " + self._reads + " -sra " + inputSRA + " > " + output
 #         cmd = "sleep 60 > " + output
         cmd += " 2> " + output + ".log ; rm ~/ncbi/public/sra/" + inputSRA + ".sra.cache"
 #         print(cmd)
@@ -48,9 +48,9 @@ if __name__ == '__main__':
 
     parser = OptionParser()
     parser.add_option("-i", "--input", dest="input", metavar="INPUT",
-                      help="input file of list of SRA files")
+                      help="input file of list of SRA IDs")
     parser.add_option("-r", "--reads", dest="reads", metavar="READS", 
-                      help="reads file")
+                      help="blast DB")
                 
     (options, args) = parser.parse_args()
         
