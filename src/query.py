@@ -20,21 +20,21 @@ class Query:
     
     def run(self, inputSRAs):
         """Run multiple SRA ids from a list, splitting into different processes"""       
-        outputFiles = []
+#         outputFiles = []
         #parse input
         sraFH = open(inputSRAs);
         #TODO THREAD ME
         for files in sraFH:
             file = files.strip()
-            outputFiles.append( file + ".results.txt")
-            self._runSingle(file, file + ".results.txt")
+#             outputFiles.append( file + ".bam")
+            self._runSingle(file, file + ".bam")
         
         #combine results into single files
 #         compileResults(outputFiles)
     
     def _runSingle(self, inputSRA, output):
         """Run a single sra ids"""
-        cmd = "/usr/bin/time -v magicblast -paired -db " + self._reads + " -q " + inputSRA + " | python parseBLAST.py > " + output
+        cmd = "/usr/bin/time -v magicblast -paired -db " + self._reads + " -q " + inputSRA + " > " + output
 #         cmd = "sleep 60 > " + output
         cmd += " 2> " + output + ".log ; rm ~/ncbi/public/sra/" + inputSRA + ".sra.cache"
 #         print(cmd)
