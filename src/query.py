@@ -34,7 +34,8 @@ class Query:
     
     def _runSingle(self, inputSRA, output):
         """Run a single sra ids"""
-        cmd = "/usr/bin/time -v magicblast -paired -db " + self._reads + " -q " + inputSRA + " | python parseBLAST.py -> " + output
+        #cmd = "/usr/bin/time -v magicblast -paired -db " + self._reads + " -q " + inputSRA + " | python parseBLAST.py > " + output
+        cmd = "ls > " + output
         cmd += " 2> " + output + ".log"
         subprocess.Popen([sys.executable, cmd])
     
