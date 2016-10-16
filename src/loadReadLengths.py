@@ -31,5 +31,5 @@ if __name__ == '__main__':
                 
     (options, args) = parser.parse_args()
     
-    rl = ReadLengths(options.input)
-    rl.load()
+    rl = ReadLengths()
+    rl.load(options.input)
