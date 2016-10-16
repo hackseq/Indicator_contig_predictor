@@ -25,8 +25,9 @@ class Query:
         sraFH = open(inputSRAs);
         #TODO THREAD ME
         for files in sraFH:
-            outputFiles.append(files + ".results.txt")
-            self._runSingle(files, files + ".results.txt")
+            file = files.strip()
+            outputFiles.append( file + ".results.txt")
+            self._runSingle(file, file + ".results.txt")
         
         #combine results into single files
 #         compileResults(outputFiles)
