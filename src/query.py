@@ -26,12 +26,12 @@ class Query:
         #TODO THREAD ME
         for files in sraFH:
             outputFiles.append(files + ".results.txt")
-            runSingle(files, files + ".results.txt")
+            self._runSingle(files, files + ".results.txt")
         
         #combine results into single files
 #         compileResults(outputFiles)
     
-    def runSingle(self, inputSRA, output):
+    def _runSingle(self, inputSRA, output):
         """Run a single sra ids"""
         cmd = "/usr/bin/time -v magicblast -paired -db " + self._reads + " -q " + inputSRA + " | python parseBLAST.py -> " + output
         cmd += " 2> " + output + ".log"
