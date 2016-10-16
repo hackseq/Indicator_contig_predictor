@@ -34,10 +34,11 @@ class Query:
     
     def _runSingle(self, inputSRA, output):
         """Run a single sra ids"""
-        #cmd = "/usr/bin/time -v magicblast -paired -db " + self._reads + " -q " + inputSRA + " | python parseBLAST.py > " + output
-        cmd = "ls > " + output
-        cmd += " 2> " + output + ".log"
-        subprocess.Popen([sys.executable, cmd], creationflags=DETACHED_PROCESS)
+        cmd = "/usr/bin/time -v magicblast -paired -db " + self._reads + " -q " + inputSRA + " | python parseBLAST.py > " + output
+#         cmd = "sleep 60 > " + output
+        cmd += " 2> " + output + ".log ; rm ~/ncbi/public/sra/" + inputSRA + ".sra.cache"
+#         print(cmd)
+        subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     
 #     def compileResults(self, outputList):
 #         """compile counts and results from multiple files"""
