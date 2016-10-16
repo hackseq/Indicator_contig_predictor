@@ -1,7 +1,7 @@
 # De novo metagenomic marker pipeline
 
 ## Roadmap
-1. Human Infant Microbiome Dataset 
+1. Human Infant Microbiome Dataset ("Babybiome")
   * Kudos to Molly K. Gibson for excellent datasharing
 2. BLAST script 
   * Based on magicBLAST, a new RNAseq BLAST mapper
