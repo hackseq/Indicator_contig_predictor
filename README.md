@@ -1,14 +1,19 @@
 # De novo metagenomic marker pipeline
 
 ## Roadmap
-1. Find data (2 environments, 3+ to test)
-  * Human gut microbiome
-  * Human skin, mouse gut?
-2. BLAST script (one line)
-  * SRA Blast - no paper on it, but Ben has some webinars
+1. Human Infant Microbiome Dataset 
+  * Kudos to Molly K. Gibson for excellent datasharing
+2. BLAST script 
+  * Based on magicBLAST, a new RNAseq BLAST mapper
 3. Coverage generator
-  * What format do you want the BLAST outputs to be in?
+  * Generation of BAMs with magicBLAST mapping to long reads (direct streaming from SRA)
+  * Building a histogram of read coverage
+   * Thresholding for uniform deep and broad coverage of long reads with short reads (indicator contigs) 
+   * Using chi-squared test to check for uniformity
+   * Generating probability of long read in short read set
 4. Gen. Classifier 
-  * Feature selection (may eventually need to do this on subsets - some kind of string-based approach?) 
-5. Probability of gene co-occurrence 
+  * Separation by physiological features
+   * Male-Female
+   * Delivery mode
+5. Probability of gene co-occurrence?
 
