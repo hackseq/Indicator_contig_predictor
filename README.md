@@ -3,6 +3,7 @@
 ## Roadmap
 1. Human Infant Microbiome Dataset ("Babybiome")
   * Kudos to Molly K. Gibson for excellent datasharing
+  [(Gibson MK, Wang B, Ahmadi S, et al. Developmental dynamics of the preterm infant gut microbiota and antibiotic resistome. Nature microbiology. 2016;1:16024.)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5031140/)
 2. BLAST script 
   * Based on magicBLAST, a new RNAseq BLAST mapper
 3. Coverage generator
