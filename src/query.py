@@ -8,7 +8,7 @@ parsing the data and collecting in format compatible with our classifier
 @contact:    cjustin@bcgsc.ca
 '''
 
-import OptionParser
+from optparse import OptionParser
 
 class Query:
     

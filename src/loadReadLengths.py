@@ -5,7 +5,7 @@
 @contact:    cjustin@bcgsc.ca
 '''
 
-import OptionParser
+from optparse import OptionParser
 
 class ReadLengths:
     
