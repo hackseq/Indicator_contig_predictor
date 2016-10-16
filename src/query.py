@@ -16,7 +16,7 @@ class Query:
     
     def __init__(self, reads):
         """Constructor"""
-        self._reads = readIDs
+        self._reads = reads
     
     def run(self, inputSRAs):
         """Run multiple SRA ids from a list, splitting into different processes"""       
