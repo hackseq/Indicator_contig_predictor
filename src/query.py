@@ -9,6 +9,8 @@ parsing the data and collecting in format compatible with our classifier
 '''
 
 from optparse import OptionParser
+import subprocess
+import sys
 
 class Query:
     
@@ -27,15 +29,17 @@ class Query:
             runSingle(files, files + ".results.txt")
         
         #combine results into single files
-        compileResults(outputFiles)
+#         compileResults(outputFiles)
     
     def runSingle(self, inputSRA, output):
         """Run a single sra ids"""
-        cmd = "sra-blastn -query " + self._reads + " -db " + inputSRA + " -outfmt 6 | python parseBlast.py > " + output
+        cmd = "/usr/bin/time -v magicblast -paired -db " + self._reads + " -q " + inputSRA + " | python parseBLAST.py -> " + output
+        cmd += " 2> " + output + ".log"
+        subprocess.Popen([sys.executable, cmd])
     
-    def compileResults(self, outputList):
-        """compile counts and results from multiple files"""
-        pass
+#     def compileResults(self, outputList):
+#         """compile counts and results from multiple files"""
+#         pass
     
 if __name__ == '__main__':
 
