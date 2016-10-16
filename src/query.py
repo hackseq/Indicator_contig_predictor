@@ -37,7 +37,7 @@ class Query:
         #cmd = "/usr/bin/time -v magicblast -paired -db " + self._reads + " -q " + inputSRA + " | python parseBLAST.py > " + output
         cmd = "ls > " + output
         cmd += " 2> " + output + ".log"
-        subprocess.Popen([sys.executable, cmd])
+        subprocess.Popen([sys.executable, cmd], creationflags=DETACHED_PROCESS)
     
 #     def compileResults(self, outputList):
 #         """compile counts and results from multiple files"""
