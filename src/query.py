@@ -34,7 +34,7 @@ class Query:
     
     def _runSingle(self, inputSRA, output):
         """Run a single sra ids"""
-        cmd = "/usr/bin/time -v magicblast -paired -db " + self._reads + " -q " + inputSRA + " > " + output
+        cmd = "/usr/bin/time -v magicblast -paired -db " + self._reads + " -sra " + inputSRA + " > " + output
 #         cmd = "sleep 60 > " + output
         cmd += " 2> " + output + ".log ; rm ~/ncbi/public/sra/" + inputSRA + ".sra.cache"
 #         print(cmd)
