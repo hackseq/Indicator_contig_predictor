@@ -11,17 +11,20 @@ k_pval = "PVAL"
 k_cov = "COV"
 
 class ReadLengths:
-    def __init__(self):
-        """Constructor"""
-        pass
-    def load(self, fastaIndex):
-        self._lengths = {}
-        fh = open(fastaIndex)
-        for line in fh:
-            tempArray = line.split("\t")
-            readID = tempArray[0]
-            length = tempArray[1]
-            self._lengths[readID] = int(length)
+	def __init__(self):
+		"""Constructor"""
+	pass
+	def load(self, fastaIndex):
+		self._lengths = {}
+		fh = open(fastaIndex)
+		for line in fh:
+			tempArray = line.split("\t")
+			readID = tempArray[0]
+			length = tempArray[1]
+			self._lengths[readID] = int(length)
+
+	def getLengths(self):
+		return self._lengths 
 
 def getAlignedLength(cigarTups):
 	'''
@@ -44,7 +47,7 @@ def test_getAlignedLength():
 	assert( getAlignedLength(cigarTups) == 21 )
 	print "test_getAlignedLength passed!"
 
-def updateDistribution(dists, refName, start, cigarTups):
+def updateDistribution(dists, lengths, refName, start, cigarTups):
 	'''
 	Update the coverage distribution for the given long read
 	Inputs
@@ -54,7 +57,7 @@ def updateDistribution(dists, refName, start, cigarTups):
 	- (list of ( (str) operation, (int) length)) cigarTups: the cigar tuples returned by pysam 
 	'''
 	if not refName in dists:
-		refLength = readLengths[refName]
+		length = lengths[refName]
 		dists[refName] = numpy.zeros(length) 
 	length = getAlignedLength(cigarTups)
 	for i in range(start, start+length):
@@ -77,12 +80,12 @@ def test_updateDistribution():
 	print "test_updateDistribution passed!"
 		
 
-def constructDistributions(bamName, readLengths):
+def constructDistributions(bamName, lengths):
 	'''
 	Given a BAM file, constructs a coverage distribution for each long read
 	Inputs
 	- (str) bamName: BAM file name
-	- (dict[(str) refName] = (int) read length) readLengths: 
+	- (dict[(str) refName] = (int) read length) lengths: 
           returns the length of the long read given its read name
 	Outputs
 	- ( dict[(str) refName] = (numpy.array of ints) distribution ) dists: contains the coverage distributions 
@@ -92,10 +95,10 @@ def constructDistributions(bamName, readLengths):
 	iter = samfile.fetch()
 	dists = {}
 	for alignment in iter: 
-		refName = alignment.reference_name()
-		start = alignment.reference_start() 
-		cigarTups = alignment.cigartuples()
-		updateDistributions(dists, refName, start, cigarTups)
+		refName = alignment.reference_name
+		start = alignment.reference_start
+		cigarTups = alignment.cigartuples
+		updateDistribution(dists, lengths, refName, start, cigarTups)
 	return dists
 
 def getPValues(dists):
@@ -230,13 +233,13 @@ parser.add_argument('-b', '--bam', metavar='BAM', type=str, help=
        	"""
        	Provide the input BAM file
        	""")
-parser.add_argument('-f', '--fasta', metavar='FASTQ', type=str, help=
+parser.add_argument('-f', '--fasta', metavar='FASTA', type=str, help=
 	"""
 	Provide the FASTA index file 
 	""")
-parser.add_argument('-o', '--output', metavar='OUTPUT', type=int, help=
+parser.add_argument('-o', '--output', metavar='OUTPUT', type=str, help=
 	"""
-	Provide the output path for preserved long reads.	
+	Provide the output path for preserved long reads.
 	""")
 parser.add_argument('-a', '--alpha', metavar='ALPHA', type=float, help=
 	"""
@@ -254,6 +257,7 @@ parser.add_argument('-t', '--tests', action='store_true', help=
        	""")
 
 args = parser.parse_args()
+optsIncomplete = False
 
 if args.tests:
 	unittests()
@@ -287,8 +291,9 @@ if optsIncomplete:
 	sys.exit()
 
 readLengths = ReadLengths()
-readLengths.load(fastaIndex)
-dists = updateDistributions(bamName,readLengths)
+readLengths.load(fastaName)
+lengths = readLengths.getLengths()
+dists = constructDistributions(bamName,lengths)
 pVals = getPValues(dists)
 covs = getCovs(dists)
 reads = combineCovsAndPVals(pVals,covs)
