@@ -202,10 +202,15 @@ def pruneCovs(reads):
 	- (dict[(str) refName] = {(str) k_pval : (int) p-value, (str) k_cov : (int) cov}) reads: 
 	  reads, their p-value and coverage
 	'''
-	for refName, info in reads.items():
-		cov = info[k_cov]
-		if cov <= g_cov:
-			del reads[refName] 
+	finalReads = []
+	for refName in reads:
+		cov = reads[refName]
+		item = (refName, cov)
+		finalReads.append(item)	
+	finalReads.sort(reverse=True,key=lambda tup: tup[1])
+	limit = len(finalReads)/5
+	finalReads = finalReads[0:limit]
+	return finalReads
 
 def writePreservedReads(outputPath, reads):
 	'''
@@ -216,10 +221,10 @@ def writePreservedReads(outputPath, reads):
 	  reads, their p-value and coverage
 	'''
 	with open(outputPath,'w') as output:
-		for refName in reads:
-			pVal = reads[refName][k_pval]
-			cov = reads[refName][k_cov]
-			line = "%s %f %f\n" % (refName, pVal, cov)
+		for read in reads:
+			refName = read[0]
+			cov = read[1]
+			line = "%s\n" % (refName)
 			output.write(line)
 
 def printCoverageDist(reads):
@@ -253,11 +258,13 @@ parser.add_argument('-o', '--output', metavar='OUTPUT', type=str, help=
 	"""
 	Provide the output path for preserved long reads.
 	""")
+'''
 parser.add_argument('-a', '--alpha', metavar='ALPHA', type=float, help=
 	"""
 	Specify the alpha value for P-Value threshold.
 	Default: %.2f
 	""" % (g_alpha))
+'''
 parser.add_argument('-c', '--cov', metavar='COV', type=int, help=
 	"""
 	Specify the coverage threshold.
@@ -275,8 +282,10 @@ if args.tests:
 	unittests()
 	sys.exit()
 
+'''
 if args.alpha:
 	g_alpha = args.alpha
+'''
 
 if args.cov:
 	g_cov = args.cov
@@ -308,13 +317,9 @@ print "Found read lengths"
 lengths = readLengths.getLengths()
 dists = constructDistributions(bamName,lengths)
 print "Constructed coverage distributions"
-pVals = getPValues(dists)
-print "Found p-values for chi-squared tests"
 covs = getCovs(dists)
 print "Found mean coverages"
-reads = combineCovsAndPValues(pVals,covs)
-prunePValues(reads)
-pruneCovs(reads)
+reads = pruneCovs(covs)
 print "Pruned reads"
 writePreservedReads(outputPath,reads)
 print "Wrote preserved reads"
