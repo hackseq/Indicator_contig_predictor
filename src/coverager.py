@@ -214,7 +214,9 @@ def writePreservedReads(outputPath, reads):
 	'''
 	with open(outputPath,'w') as output:
 		for refName in reads:
-			line = "%s\n" % (refName)
+			pVal = reads[refName][k_pval]
+			cov = reads[refName][k_cov]
+			line = "%s %.2f %.2f\n" % (refName, pVal, cov)
 			output.write(line)
 
 def unittests():
