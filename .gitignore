@@ -1,0 +1,8 @@
+*~
+#*#
+.idea
+*.swp
+*.obj
+env
+__pycache__
+index_copy.html
