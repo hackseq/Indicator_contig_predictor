@@ -33,17 +33,17 @@ def getAlignedLength(cigarTups):
 	Outputs
 	- (int) length: length of aligned bases in the reference sequence 
 	'''
-	length = 0
+	alignedLength = 0
 	for tup in cigarTups:
 		operation = tup[0]
-		if int(operation) in [0, 2, 4, 7, 8]:
+		if operation in [0, 2, 4, 7, 8]:
 			opLength = int(tup[1])
-			length += opLength
-	return length
+			alignedLength += opLength
+	return alignedLength
 
 def test_getAlignedLength():
-	cigarTups = [ (0,5), (2,2), (7,10), (8,4), (1,25) ]
-	assert( getAlignedLength(cigarTups) == 21 )
+	cigarTups = [ (0,5), (2,2), (7,10), (8,4), (1,25), (4,2) ]
+	assert( getAlignedLength(cigarTups) == 23 )
 	print "test_getAlignedLength passed!"
 
 def updateDistribution(dists, lengths, refName, start, cigarTups):
@@ -55,12 +55,12 @@ def updateDistribution(dists, lengths, refName, start, cigarTups):
 	- (int) start: position in long read that alignment starts at
 	- (list of ( (str) operation, (int) length)) cigarTups: the cigar tuples returned by pysam 
 	'''
+	readLength = lengths[refName]
 	if not refName in dists:
-		length = lengths[refName]
-		dists[refName] = [ 1 for i in range(length) ]
-	length = getAlignedLength(cigarTups)
+		dists[refName] = [ 1 for i in range(readLength) ]
+	alignedLength = getAlignedLength(cigarTups)
 	i = start
-	while i < len(dists[refName]) and i < length + start:
+	while i < readLength and i < alignedLength + start:
 		dists[refName][i] += 1
 		i += 1
 
@@ -93,7 +93,7 @@ def constructDistributions(bamName, lengths):
 	- ( dict[(str) refName] = (numpy.array of ints) distribution ) dists: contains the coverage distributions 
           for each long read
 	'''
-	samfile = AlignmentFile(bamName, 'rb')
+	samfile = AlignmentFile(bamName, 'r')
 	iter = samfile.fetch()
 	dists = {}
 	for alignment in iter: 
@@ -315,7 +315,6 @@ print "Found mean coverages"
 reads = combineCovsAndPValues(pVals,covs)
 prunePValues(reads)
 pruneCovs(reads)
-printCoverageDist(reads)
 print "Pruned reads"
 writePreservedReads(outputPath,reads)
 print "Wrote preserved reads"
