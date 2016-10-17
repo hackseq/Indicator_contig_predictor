@@ -6,7 +6,7 @@ import numpy
 
 # Default global variables
 g_alpha = 0.05
-g_cov = 100
+g_cov = 1 
 k_pval = "PVAL"
 k_cov = "COV"
 
@@ -22,7 +22,6 @@ class ReadLengths:
 			readID = tempArray[0]
 			length = tempArray[1]
 			self._lengths[readID] = int(length)
-
 	def getLengths(self):
 		return self._lengths 
 
@@ -37,13 +36,13 @@ def getAlignedLength(cigarTups):
 	length = 0
 	for tup in cigarTups:
 		operation = tup[0]
-		if operation in ["M", "D", "=", "X"]:
+		if int(operation) in [0, 2, 4, 7, 8]:
 			opLength = int(tup[1])
 			length += opLength
 	return length
 
 def test_getAlignedLength():
-	cigarTups = [ ('M', 5), ('D', 2), ('=', 10), ('X', 4), ('I', 25) ]
+	cigarTups = [ (0,5), (2,2), (7,10), (8,4), (1,25) ]
 	assert( getAlignedLength(cigarTups) == 21 )
 	print "test_getAlignedLength passed!"
 
@@ -58,10 +57,12 @@ def updateDistribution(dists, lengths, refName, start, cigarTups):
 	'''
 	if not refName in dists:
 		length = lengths[refName]
-		dists[refName] = numpy.zeros(length) 
+		dists[refName] = [ 1 for i in range(length) ]
 	length = getAlignedLength(cigarTups)
-	for i in range(start, start+length):
+	i = start
+	while i < len(dists[refName]) and i < length + start:
 		dists[refName][i] += 1
+		i += 1
 
 def test_updateDistribution():
 	refName = "example"
@@ -69,12 +70,12 @@ def test_updateDistribution():
 	dists = { refName : [0,0,0,0,0,0,0] }
 
 	start = 1 
-	cigarTups = [('M',5)]
+	cigarTups = [(0,5)]
 	updateDistribution(dists,lengths,refName,start,cigarTups)
 	assert( dists == { refName : [0,1,1,1,1,1,0] } )
 
 	start = 2
-	cigarTups = [('M',2)]
+	cigarTups = [(0,2)]
 	updateDistribution(dists,lengths,refName,start,cigarTups)
 	assert( dists == { refName : [0,1,2,2,1,1,0] } )
 
@@ -97,7 +98,7 @@ def constructDistributions(bamName, lengths):
 	dists = {}
 	for alignment in iter: 
 		refName = alignment.reference_name
-		start = alignment.reference_start
+		start = int(alignment.reference_start)
 		cigarTups = alignment.cigartuples
 		updateDistribution(dists, lengths, refName, start, cigarTups)
 	return dists
@@ -189,7 +190,8 @@ def prunePValues(reads):
 	- (dict[(str) refName] = {(str) k_pval : (int) p-value, (str) k_cov : (int) cov}) reads 
           reads, their p-value and coverage
 	'''
-	for refName, pVal in reads.items():
+	for refName, info in reads.items():
+		pVal = info[k_pval]
 		if pVal < (1.0-g_alpha):
 			del reads[refName] 
 
@@ -200,8 +202,9 @@ def pruneCovs(reads):
 	- (dict[(str) refName] = {(str) k_pval : (int) p-value, (str) k_cov : (int) cov}) reads: 
 	  reads, their p-value and coverage
 	'''
-	for refName, cov in reads.items():
-		if cov < g_cov:
+	for refName, info in reads.items():
+		cov = info[k_cov]
+		if cov <= g_cov:
 			del reads[refName] 
 
 def writePreservedReads(outputPath, reads):
@@ -216,8 +219,16 @@ def writePreservedReads(outputPath, reads):
 		for refName in reads:
 			pVal = reads[refName][k_pval]
 			cov = reads[refName][k_cov]
-			line = "%s %.2f %.2f\n" % (refName, pVal, cov)
+			line = "%s %f %f\n" % (refName, pVal, cov)
 			output.write(line)
+
+def printCoverageDist(reads):
+	covs = []
+	for refName in reads:
+		cov = reads[refName][k_cov]
+		covs.append(cov)	
+	covs.sort()
+	print covs
 
 def unittests():
 	test_getAlignedLength()	
@@ -304,6 +315,7 @@ print "Found mean coverages"
 reads = combineCovsAndPValues(pVals,covs)
 prunePValues(reads)
 pruneCovs(reads)
+printCoverageDist(reads)
 print "Pruned reads"
 writePreservedReads(outputPath,reads)
 print "Wrote preserved reads"
