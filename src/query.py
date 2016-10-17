@@ -20,21 +20,21 @@ class Query:
     
     def run(self, inputSRAs):
         """Run multiple SRA ids from a list, splitting into different processes"""       
-        outputFiles = []
+#         outputFiles = []
         #parse input
         sraFH = open(inputSRAs);
         #TODO THREAD ME
         for files in sraFH:
             file = files.strip()
-            outputFiles.append( file + ".results.txt")
-            self._runSingle(file, file + ".results.txt")
+#             outputFiles.append( file + ".bam")
+            self._runSingle(file, file + ".bam")
         
         #combine results into single files
 #         compileResults(outputFiles)
     
     def _runSingle(self, inputSRA, output):
         """Run a single sra ids"""
-        cmd = "/usr/bin/time -v magicblast -paired -db " + self._reads + " -q " + inputSRA + " | python parseBLAST.py > " + output
+        cmd = "time magicblast -paired -db " + self._reads + " -sra " + inputSRA + " > " + output
 #         cmd = "sleep 60 > " + output
         cmd += " 2> " + output + ".log ; rm ~/ncbi/public/sra/" + inputSRA + ".sra.cache"
 #         print(cmd)
@@ -48,9 +48,9 @@ if __name__ == '__main__':
 
     parser = OptionParser()
     parser.add_option("-i", "--input", dest="input", metavar="INPUT",
-                      help="input file of list of SRA files")
+                      help="input file of list of SRA IDs")
     parser.add_option("-r", "--reads", dest="reads", metavar="READS", 
-                      help="reads file")
+                      help="blast DB")
                 
     (options, args) = parser.parse_args()
         
