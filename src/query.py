@@ -6,6 +6,7 @@ parsing the data and collecting in format compatible with our classifier
 
 @author:     cjustin
 @contact:    cjustin@bcgsc.ca
+@editor:     dcgenomics
 '''
 
 from optparse import OptionParser
@@ -34,7 +35,7 @@ class Query:
     
     def _runSingle(self, inputSRA, output):
         """Run a single sra ids"""
-        cmd = "time magicblast -paired -db " + self._reads + " -sra " + inputSRA + " > " + output
+        cmd = "magicblast -paired -splice F -db " + self._reads + " -sra " + inputSRA + " > " + output
 #         cmd = "sleep 60 > " + output
         cmd += " 2> " + output + ".log ; rm ~/ncbi/public/sra/" + inputSRA + ".sra.cache"
 #         print(cmd)
