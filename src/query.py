@@ -12,6 +12,17 @@ parsing the data and collecting in format compatible with our classifier
 from optparse import OptionParser
 import subprocess
 import sys
+import os
+from joblib import Parallel, delayed
+
+def _runSingle(inputSRA):
+     """Run a single sra ids"""
+     cmd = "magicblast -paired -splice F -db " + self._reads + " -sra " + inputSRA + " > " + output
+#      cmd = "sleep 10 > " + inputSRA + ".bam"
+     cmd += " 2> " + inputSRA + ".bam.log ; rm ~/ncbi/public/sra/" + inputSRA + ".sra.cache"
+     print(cmd)
+     os.system(cmd)
+ 
 
 class Query:
     
@@ -19,31 +30,16 @@ class Query:
         """Constructor"""
         self._reads = reads
     
-    def run(self, inputSRAs):
+    def run(self, inputSRAs, threads):
         """Run multiple SRA ids from a list, splitting into different processes"""       
-#         outputFiles = []
+        filenames = []
         #parse input
         sraFH = open(inputSRAs);
-        #TODO THREAD ME
         for files in sraFH:
             file = files.strip()
-#             outputFiles.append( file + ".bam")
-            self._runSingle(file, file + ".bam")
+            filenames.append(file)
         
-        #combine results into single files
-#         compileResults(outputFiles)
-    
-    def _runSingle(self, inputSRA, output):
-        """Run a single sra ids"""
-        cmd = "magicblast -paired -splice F -db " + self._reads + " -sra " + inputSRA + " > " + output
-#         cmd = "sleep 60 > " + output
-        cmd += " 2> " + output + ".log ; rm ~/ncbi/public/sra/" + inputSRA + ".sra.cache"
-#         print(cmd)
-        subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    
-#     def compileResults(self, outputList):
-#         """compile counts and results from multiple files"""
-#         pass
+        Parallel(n_jobs = threads) (delayed(_runSingle)(file) for file in filenames)
     
 if __name__ == '__main__':
 
@@ -52,11 +48,13 @@ if __name__ == '__main__':
                       help="input file of list of SRA IDs")
     parser.add_option("-r", "--reads", dest="reads", metavar="READS", 
                       help="blast DB")
+    parser.add_option("-t", "--threads", dest="threads", metavar="THREADS", 
+                      help="number of thread to use at a time", default = 1)
                 
     (options, args) = parser.parse_args()
-        
+           
     if options.input and options.reads:
         runner = Query(options.reads)
-        runner.run(options.input)        
+        runner.run(options.input, int(options.threads))        
     else:
         print 'ERROR: Missing Required Options. Use -h for help'
