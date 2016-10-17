@@ -65,16 +65,17 @@ def updateDistribution(dists, lengths, refName, start, cigarTups):
 
 def test_updateDistribution():
 	refName = "example"
+	lengths = { refName : 7 }
 	dists = { refName : [0,0,0,0,0,0,0] }
 
 	start = 1 
 	cigarTups = [('M',5)]
-	updateDistribution(dists,refName,start,cigarTups)
+	updateDistribution(dists,lengths,refName,start,cigarTups)
 	assert( dists == { refName : [0,1,1,1,1,1,0] } )
 
 	start = 2
 	cigarTups = [('M',2)]
-	updateDistribution(dists,refName,start,cigarTups)
+	updateDistribution(dists,lengths,refName,start,cigarTups)
 	assert( dists == { refName : [0,1,2,2,1,1,0] } )
 
 	print "test_updateDistribution passed!"
@@ -188,8 +189,7 @@ def prunePValues(reads):
 	- (dict[(str) refName] = {(str) k_pval : (int) p-value, (str) k_cov : (int) cov}) reads 
           reads, their p-value and coverage
 	'''
-	for refName in reads:
-		pVal = reads[refName][k_pval]
+	for refName, pVal in reads.items():
 		if pVal < (1.0-g_alpha):
 			del reads[refName] 
 
@@ -200,8 +200,7 @@ def pruneCovs(reads):
 	- (dict[(str) refName] = {(str) k_pval : (int) p-value, (str) k_cov : (int) cov}) reads: 
 	  reads, their p-value and coverage
 	'''
-	for refName in reads:
-		cov = reads[refName][k_cov]
+	for refName, cov in reads.items():
 		if cov < g_cov:
 			del reads[refName] 
 
@@ -292,11 +291,17 @@ if optsIncomplete:
 
 readLengths = ReadLengths()
 readLengths.load(fastaName)
+print "Found read lengths"
 lengths = readLengths.getLengths()
 dists = constructDistributions(bamName,lengths)
+print "Constructed coverage distributions"
 pVals = getPValues(dists)
+print "Found p-values for chi-squared tests"
 covs = getCovs(dists)
-reads = combineCovsAndPVals(pVals,covs)
+print "Found mean coverages"
+reads = combineCovsAndPValues(pVals,covs)
 prunePValues(reads)
 pruneCovs(reads)
-writePreservedReads(outputPath)
+print "Pruned reads"
+writePreservedReads(outputPath,reads)
+print "Wrote preserved reads"
